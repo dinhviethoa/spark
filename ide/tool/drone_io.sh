@@ -20,4 +20,4 @@ pub get
 dart tool/test_runner.dart --dartium
 
 # Run tests on chrome.
-#dart tool/test_runner.dart --chrome
+dart tool/test_runner.dart --chrome
