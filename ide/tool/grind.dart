@@ -253,6 +253,7 @@ void _dart2jsCompile(GrinderContext context, Directory target, String filePath,
      '--suppress-warnings',
      '--suppress-hints',
      '--out=' + joinDir(target, ['${filePath}.js']).path]);
+     /*
   if (Platform.isWindows) {
     context.log('WARNING! Build on windows won\'t apply the patch for dart2js.');
   } else {
@@ -268,6 +269,7 @@ void _dart2jsCompile(GrinderContext context, Directory target, String filePath,
         arguments: ['${filePath}.precompiled.js', patchFilename],
         workingDirectory: target.path);
   }
+     */
 
   // clean up unnecessary (and large) files
   deleteEntity(joinFile(target, ['${filePath}.js']), context);
