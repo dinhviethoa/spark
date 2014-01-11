@@ -91,6 +91,8 @@ void runApp(String browserPath, String appPath) {
   String path = new Directory(appPath).absolute.path;
 
   List<String> args = [
+      '--enable-experimental-web-platform-features',
+      '--enable-html-imports',
       '--no-default-browser-check',
       '--no-first-run',
       '--user-data-dir=${tempDir.path}',
