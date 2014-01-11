@@ -20,7 +20,7 @@ fi
 ./grind mode-test
 
 # Run tests on dartium.
-dart tool/test_runner.dart --dartium
+#dart tool/test_runner.dart --dartium
 
 # Run tests on chrome.
 if [ "$DRONE" = "true" ]; then

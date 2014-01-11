@@ -93,6 +93,8 @@ void runApp(String browserPath, String appPath) {
   List<String> args = [
       '--enable-experimental-web-platform-features',
       '--enable-html-imports',
+      '--enable-logging=stderr',
+      '--v=1',
       '--no-default-browser-check',
       '--no-first-run',
       '--user-data-dir=${tempDir.path}',
