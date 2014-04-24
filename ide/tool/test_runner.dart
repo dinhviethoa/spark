@@ -118,10 +118,18 @@ void runApp(String browserPath, String appPath,
 
       chromeProcess.stdout.transform(new Utf8Decoder())
                           .transform(new LineSplitter())
-                          .listen((String line) => print(line));
+                          .listen((String line) {
+                            if (line.contains('INFO:CONSOLE')) {
+                              print(line);
+                            }
+                          });
       chromeProcess.stderr.transform(new Utf8Decoder())
                           .transform(new LineSplitter())
-                          .listen((String line) => print(line));
+                          .listen((String line) {
+                            if (line.contains('INFO:CONSOLE')) {
+                              print(line);
+                            }
+                          });
 
       chromeProcess.exitCode.then((int exitCode) {
         log("Chrome process finished [${exitCode}]");
