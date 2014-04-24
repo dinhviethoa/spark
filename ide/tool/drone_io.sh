@@ -22,9 +22,9 @@ fi
 ./grind mode-test
 
 # Run tests the Dart version of the app.
-if [ "$HAS_DARTIUM" = "true" ]; then
-  dart tool/test_runner.dart --dartium --verbose
-fi
+#if [ "$HAS_DARTIUM" = "true" ]; then
+#  dart tool/test_runner.dart --dartium --verbose
+#fi
 
 # Run tests on the dart2js version of the app.
 if [ "$DRONE" = "true" ]; then
