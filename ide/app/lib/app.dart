@@ -90,7 +90,9 @@ abstract class Application {
 
     return Future.forEach(listeners, (LifecycleParticipant participant) {
       if (newState == LifecycleState.STARTING) {
-        return participant.applicationStarting(this);
+        Future future = participant.applicationStarting(this);
+        print('spark starting');
+        return future;
       } else if (newState == LifecycleState.STARTED) {
         return participant.applicationStarted(this);
       } else if (newState == LifecycleState.CLOSING) {

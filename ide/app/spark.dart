@@ -158,8 +158,11 @@ abstract class Spark
     }
     addBuilder(new JsonBuilder());
 
+    print('spark init2');
     return restoreWorkspace().then((_) {
+      print('spark init3');
       return restoreLocationManager().then((_) {
+        print('spark init4');
         // Location manager might have overridden the Ace-related flags from
         // "<project location>/.spark.json".
         initAceManagers();
