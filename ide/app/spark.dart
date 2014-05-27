@@ -474,7 +474,9 @@ abstract class Spark
   }
 
   Future restoreWorkspace() {
+    print('restore!');
     return workspace.restore().then((value) {
+      print('restore done!');
       if (workspace.getFiles().length == 0) {
         // No files, just focus the editor.
         aceManager.focus();
@@ -533,6 +535,7 @@ abstract class Spark
 
   void unveil() {
     if (SparkFlags.developerMode) {
+      print('run test now!');
       RunTestsAction action = actionManager.getAction('run-tests');
       action.checkForTestListener();
     }
