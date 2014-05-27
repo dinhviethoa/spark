@@ -534,6 +534,7 @@ abstract class Spark
   }
 
   void unveil() {
+      print('run test now?');
     if (SparkFlags.developerMode) {
       print('run test now!');
       RunTestsAction action = actionManager.getAction('run-tests');
