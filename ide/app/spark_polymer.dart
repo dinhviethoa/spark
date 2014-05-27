@@ -134,6 +134,7 @@ class SparkPolymer extends Spark {
   }
 
   void uiReady() {
+    print('ui ready');
     assert(_ui == null);
     _ui = document.querySelector('#topUi');
   }
@@ -296,9 +297,12 @@ class SparkPolymer extends Spark {
 
 class _SparkSetupParticipant extends LifecycleParticipant {
   Future applicationStarting(Application app) {
+    print('starting');
     final SparkPolymer spark = app;
     return PlatformInfo.init().then((_) {
+      print('starting2');
       return polymer.Polymer.onReady.then((_) {
+        print('starting3');
         spark.uiReady();
         return spark.init();
       });

@@ -115,6 +115,8 @@ abstract class Spark
    * [Polymer.onReady] event.
    */
   Future init() {
+    print('spark init');
+
     initPreferences();
     initEventBus();
 
