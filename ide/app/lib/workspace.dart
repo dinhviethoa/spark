@@ -249,7 +249,10 @@ class Workspace extends Container {
           if (root != null) roots.add(root);
         }
 
+        print('restore1');
+
         Future.forEach(roots, (WorkspaceRoot root) {
+          print('restore1.1 ${root}');
           return root.restore().then((_) {
             return link(root, fireEvent: false);
           }).catchError((e) {
@@ -257,15 +260,21 @@ class Workspace extends Container {
             _logger.warning("Error when restoring ${root}", e);
           });
         }).whenComplete(() {
+          print('restore 1.2 ${root} done');
           _logger.info('Workspace restore took ${stopwatch.elapsedMilliseconds}ms.');
           resumeResourceEvents();
           _restoreSyncFs();
-        }).then((_) => _whenAvailable.complete(this));
+        }).then((_) {
+          print('restore 1.5');
+          _whenAvailable.complete(this);
+        });
       } catch (e) {
+        print('restore 1.3');
         _logger.warning('Exception in workspace restore', e);
         _whenAvailable.complete(this);
       }
     });
+    print('restore 1.4');
 
     return whenAvailable();
   }
