@@ -254,13 +254,14 @@ class Workspace extends Container {
         Future.forEach(roots, (WorkspaceRoot root) {
           print('restore1.1 ${root}');
           return root.restore().then((_) {
+            print('restore 1.1.1 ${root} done');
             return link(root, fireEvent: false);
           }).catchError((e) {
             // Log the error, but don't fail the workspace restore because of it.
             _logger.warning("Error when restoring ${root}", e);
           });
         }).whenComplete(() {
-          print('restore 1.2 ${root} done');
+          print('restore 1.2 done');
           _logger.info('Workspace restore took ${stopwatch.elapsedMilliseconds}ms.');
           resumeResourceEvents();
           _restoreSyncFs();
