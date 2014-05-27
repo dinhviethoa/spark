@@ -242,7 +242,9 @@ class _ChromePreferenceStore implements PreferenceStore {
     if (_map.containsKey(key)) {
       return new Future.value(_map[key]);
     } else {
+      print('read in storage area1');
       return _storageArea.get(key).then((Map<String, String> map) {
+        print('read in storage area2');
         // TODO(ussuri): Shouldn't we cache the just read value in _map?
         final String val = map == null ? null : map[key];
         return val != null ? val : defaultVal;
