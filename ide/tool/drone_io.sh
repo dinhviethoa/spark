@@ -32,8 +32,9 @@ if [ "$DRONE" = "true" ]; then
   # TODO: For now, dartium is a stand-in for chrome on drone.io.
   # TODO(devoncarew): disable dart2js tests on drone...
   # https://github.com/dart-lang/spark/issues/2054
-  #dart tool/test_runner.dart --dartium --appPath=build/deploy-out/web
+  dart tool/test_runner.dart --dartium --appPath=build/deploy-out/web --verbose
   echo "testing of JavaScript version temporarily disabled (#2054)"
 else
-  dart tool/test_runner.dart --chrome
+  #dart tool/test_runner.dart --chrome
+  echo disabled Dartium test
 fi
