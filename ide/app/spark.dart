@@ -162,7 +162,7 @@ abstract class Spark
     return restoreWorkspace().then((_) {
       print('spark init3');
       return restoreLocationManager().then((_) {
-        print('spark init4');
+        print('spark init');
         // Location manager might have overridden the Ace-related flags from
         // "<project location>/.spark.json".
         initAceManagers();
@@ -490,7 +490,9 @@ abstract class Spark
   }
 
   Future restoreLocationManager() {
+    print('restoreManager');
     return ProjectLocationManager.restoreManager(this).then((manager) {
+      print('restoreManager2');
       _projectLocationManager = manager;
     });
   }
@@ -822,17 +824,24 @@ class ProjectLocationManager {
    */
   static Future<ProjectLocationManager> restoreManager(Spark spark) {
     //localPrefs, workspace
+    print('restoreManager1.1');
     return spark.localPrefs.getValue('projectFolder').then((String folderToken) {
+      print('restoreManager1.2');
       if (folderToken == null) {
+        print('restoreManager1.3');
         return new ProjectLocationManager._(spark);
       }
 
+      print('restoreManager1.4');
       return chrome.fileSystem.restoreEntry(folderToken).then((chrome.Entry entry) {
+        print('restoreManager1.5');
         return _initFlagsFromProjectLocation(entry).then((_) {
+          print('restoreManager1.6');
           return new ProjectLocationManager._(spark,
               new LocationResult(entry, entry, false));
         });
       }).catchError((e) {
+        print('restoreManager1.7');
         return new ProjectLocationManager._(spark);
       });
     });
