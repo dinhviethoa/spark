@@ -261,12 +261,15 @@ class SparkPolymer extends Spark {
 
   @override
   void unveil() {
+    print('unveil1');
     super.unveil();
 
+    print('unveil2');
     // TODO(devoncarew) We'll want to switch over to using the polymer
     // 'unresolved' or 'polymer-unveil' attributes, once these start working.
     DivElement element = document.querySelector('#splashScreen');
 
+    print('unveil3');
     if (element != null) {
       element.classes.add('closeSplash');
       new Timer(new Duration(milliseconds: 300), () {
@@ -303,9 +306,12 @@ class _SparkSetupParticipant extends LifecycleParticipant {
   }
 
   Future applicationStarted(Application app) {
+    print('application started');
     final SparkPolymer spark = app;
     spark._ui.modelReady(spark);
+    print('app started1');
     spark.unveil();
+    print('app started2');
     _logger.logStep('Spark started');
     _logger.logElapsed('Total startup time');
     return new Future.value();
