@@ -24,7 +24,8 @@ fi
 
 # Run tests the Dart version of the app.
 if [ "$HAS_DARTIUM" = "true" ]; then
-  dart tool/test_runner.dart --dartium
+#  dart tool/test_runner.dart --dartium
+  echo dartimu
 fi
 
 # Run tests on the dart2js version of the app.
@@ -33,8 +34,9 @@ if [ "$DRONE" = "true" ]; then
   # TODO(devoncarew): disable dart2js tests on drone...
   # https://github.com/dart-lang/spark/issues/2054
   dart tool/test_runner.dart --dartium --appPath=build/deploy-out/web --verbose
-  echo "testing of JavaScript version temporarily disabled (#2054)"
+  #echo "testing of JavaScript version temporarily disabled (#2054)"
 else
   #dart tool/test_runner.dart --chrome
-  echo disabled Dartium test
+  #echo disabled Dartium test
+  echo else
 fi
