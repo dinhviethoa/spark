@@ -418,10 +418,13 @@ class Workspace extends Container {
         });
       });
     }, onError: (e) {
-        _logger.warning('Exception in workspace restore sync file system', e);
+      print('exception while restoing');
+      _logger.warning('Exception in workspace restore sync file system', e);
       _whenAvailableSyncFs.complete(this);
     }).timeout(new Duration(seconds: 20)).whenComplete(() {
+      print('timeout');
       progressCompleter.complete();
+      print('timeout');
       _whenAvailableSyncFs.complete(this);
     });
   }
