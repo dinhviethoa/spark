@@ -545,7 +545,8 @@ abstract class Spark
     if (SparkFlags.developerMode) {
       print('run test now!');
       RunTestsAction action = actionManager.getAction('run-tests');
-      action.checkForTestListener();
+      //action.checkForTestListener();
+      action.invoke();
     }
   }
 
