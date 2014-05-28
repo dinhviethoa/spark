@@ -425,7 +425,7 @@ class Workspace extends Container {
       print('exception while restoing');
       _logger.warning('Exception in workspace restore sync file system', e);
       _whenAvailableSyncFs.complete(this);
-    }).timeout(new Duration(secon_whenAvailableSyncFsds: 20)).whenComplete(() {
+    }).timeout(new Duration(seconds: 20)).whenComplete(() {
       if (hasTimeout) {
         return;
       }
