@@ -400,7 +400,7 @@ class Workspace extends Container {
     _builderManager.jobManager.schedule(
         new ProgressJob('Opening sync filesystem…', progressCompleter));
 
-    bool hasTimeout = false;
+    bool finished = false;
     return chrome.syncFileSystem.requestFileSystem().then((/*chrome.FileSystem*/ fs) {
       _syncFileSystem = fs;
 
@@ -424,15 +424,17 @@ class Workspace extends Container {
     }, onError: (e) {
       print('exception while restoing');
       _logger.warning('Exception in workspace restore sync file system', e);
-      _whenAvailableSyncFs.complete(this);
-    }).timeout(new Duration(seconds: 20)).whenComplete(() {
-      if (hasTimeout) {
-        return;
+      if (!finished) {
+        finished = true;
+        _whenAvailableSyncFs.complete(this);
+        progressCompleter.complete();
       }
-      hasTimeout = true;
-      print('timeout');
-      progressCompleter.complete();
-      print('timeout2');
+    }).timeout(new Duration(seconds: 20)).whenComplete(() {
+      if (!finished) {
+        finished = true;
+        _whenAvailableSyncFs.complete(this);
+        progressCompleter.complete();
+      }
       //_whenAvailableSyncFs.complete(this);
     });
   }
