@@ -392,6 +392,8 @@ class Workspace extends Container {
    * Read the sync file system and restore entries.
    */
   Future _restoreSyncFs() {
+
+    print('restoreSyncFS');
     Stopwatch stopwatch = new Stopwatch()..start();
     Completer progressCompleter = new Completer();
 
@@ -409,6 +411,7 @@ class Workspace extends Container {
         }
       });
 
+      print('read entries');
       return _syncFileSystem.root.createReader().readEntries().then((List<chrome.Entry> entries) {
         pauseResourceEvents();
         return Future.forEach(entries, (chrome.Entry entry) {
@@ -422,7 +425,7 @@ class Workspace extends Container {
       print('exception while restoing');
       _logger.warning('Exception in workspace restore sync file system', e);
       _whenAvailableSyncFs.complete(this);
-    }).timeout(new Duration(seconds: 20)).whenComplete(() {
+    }).timeout(new Duration(secon_whenAvailableSyncFsds: 20)).whenComplete(() {
       if (hasTimeout) {
         return;
       }
@@ -430,7 +433,7 @@ class Workspace extends Container {
       print('timeout');
       progressCompleter.complete();
       print('timeout2');
-      _whenAvailableSyncFs.complete(this);
+      //_whenAvailableSyncFs.complete(this);
     });
   }
 
