@@ -36,6 +36,7 @@ class TestDriver {
     unittest.unittestConfiguration = new _SparkTestConfiguration(this);
 
     if (connectToTestListener) {
+      print('try to connect0');
       _connectToListener();
     }
   }
@@ -67,8 +68,10 @@ class TestDriver {
 
   void _connectToListener() {
     // Try to connect to a pre-defined port.
+    print('try to connect');
     _TestListenerClient.connect().then((_TestListenerClient testClient) {
       if (testClient == null) {
+        print('could not connect');
         return;
       }
 

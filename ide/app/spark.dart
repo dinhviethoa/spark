@@ -541,12 +541,9 @@ abstract class Spark
   }
 
   void unveil() {
-      print('run test now?');
     if (SparkFlags.developerMode) {
-      print('run test now!');
       RunTestsAction action = actionManager.getAction('run-tests');
-      //action.checkForTestListener();
-      action.invoke();
+      action.checkForTestListener();
     }
   }
 
@@ -3166,7 +3163,9 @@ class RunTestsAction extends SparkAction {
   }
 
   void _initTestDriver() {
+    print('_initTestDriver');
     if (testDriver == null) {
+      print('create driver');
       testDriver = new TestDriver(all_tests.defineTests, spark.jobManager,
           connectToTestListener: true);
     }
