@@ -825,11 +825,13 @@ class ProjectLocationManager {
   static Future<ProjectLocationManager> restoreManager(Spark spark) {
     //localPrefs, workspace
     print('restoreManager1.1');
-    return spark.localPrefs.getValue('projectFolder').then((String folderToken) {
+    //return spark.localPrefs.getValue('projectFolder').then((String folderToken) {
+    {
+       String folderToken = null;
       print('restoreManager1.2');
       if (folderToken == null) {
         print('restoreManager1.3');
-        return new ProjectLocationManager._(spark);
+        return new Future.value(new ProjectLocationManager._(spark));
       }
 
       print('restoreManager1.4');
@@ -842,9 +844,9 @@ class ProjectLocationManager {
         });
       }).catchError((e) {
         print('restoreManager1.7');
-        return new ProjectLocationManager._(spark);
+        return new Future.value(new ProjectLocationManager._(spark));
       });
-    });
+    }
   }
 
   /**
