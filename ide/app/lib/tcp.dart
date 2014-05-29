@@ -56,19 +56,27 @@ class TcpClient {
 
   static Future<TcpClient> createClient(String host, int port,
       {bool throwOnError: true}) {
+    print('create socket1');
     return chrome.sockets.tcp.create().then((chrome.CreateInfo createInfo) {
+      print('create socket2');
       int socketId = createInfo.socketId;
 
+      print('create socket3');
       return chrome.sockets.tcp.connect(socketId, host, port).then((int result) {
+        print('create socket4');
         if (result < 0) {
+          print('create socket5');
           chrome.sockets.tcp.close(socketId);
           if (!throwOnError) return null;
+          print('create socket6');
           throw new SocketException(
               'unable to connect to ${host} ${port}: ${result}');
         } else {
+          print('create socket7');
           return new TcpClient._fromSocketId(socketId);
         }
       }).catchError((e) {
+        print('create socket8');
         if (!throwOnError) return null;
         throw new SocketException(
             'unable to connect to ${host} ${port}: ${e.toString()}');
