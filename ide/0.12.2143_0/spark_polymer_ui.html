@@ -1,0 +1,2301 @@
+<!DOCTYPE html><!-- Copyright (c) 2013, Google Inc. Please see the AUTHORS file for details.
+     All rights reserved. Use of this source code is governed by a BSD-style
+     license that can be found in the LICENSE file. --><!-- NOTE: If you add any new Polymer imports here, don't forget to also add
+     matching Dart imports in spark_bootstrap.dart. --><html><head><script src="packages/web_components/platform.js"></script>
+<script src="packages/web_components/dart_support.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+</head><body>
+
+<polymer-element name="spark-widget">
+  
+</polymer-element>
+<polymer-element name="spark-button" extends="spark-widget" attributes="raised
+                flat
+                round
+                primary
+                minPadding
+                noPadding
+                disabled
+                active">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: inline-block;
+  border: none;
+  background: transparent;
+  text-align: center;
+  text-transform: uppercase;
+  border-radius: 2px;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+:host([round]) {
+  border-radius: 50%;
+}
+
+:host(:hover, 
+      :active, 
+      [active]) {
+  background: #e4e4e4;
+}
+
+:host([raised]) {
+  background: #dfdfdf;
+  box-shadow: 0 2px 10px 0px #ddd;
+}
+
+:host([raised]:hover, 
+      [raised]:active, 
+      [raised][active]) {
+  background: #d6d6d6;
+}
+
+:host([primary]) {
+  color: rgb(66, 128, 244);
+}
+
+:host([primary][raised]) {
+  color: #fff;
+  background: rgb(66, 128, 244);
+}
+
+:host([primary][raised]:hover, 
+      [primary][raised]:active, 
+      [primary][raised][active]) {
+  color: #fff;
+  background: rgb(51, 103, 214);
+}
+
+:host([disabled]) {
+  background: #eaeaea !important;
+  color: #a8a8a8 !important;
+  opacity: 0.4 !important;
+  box-shadow: none !important;
+  cursor: auto !important;
+  pointer-events: none !important;
+}
+
+:host([primary][raised][disabled]) {
+  background: rgb(66, 128, 244, 0.4) !important;
+  color: #a8a8a8 !important;
+}
+
+:host(:active, 
+      [active]) {
+  box-shadow: 0 7px 10px 0px #ddd;
+  -webkit-transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#button {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+#focusBg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  border-radius: inherit;
+  background: #c3c3c3;
+  -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#content {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+}
+
+:host([minPadding]) #content {
+  padding: 2px;
+}
+
+:host([noPadding]) #content {
+  padding: 0;
+}
+
+:host(:focus) #focusBg {
+  -webkit-transition: none;
+  transition: none;
+  -webkit-animation: focus-fade 0.7s infinite alternate;
+  animation: focus-fade 0.7s infinite alternate;
+}
+
+@-webkit-keyframes focus-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes focus-fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+::content * {
+  /* Needed to put ink behind the contents */
+  position: relative;
+}
+</style>
+
+    <div id="button" focused="" tabindex="0">
+      <div id="focusBg"></div>
+      <div id="content">
+        <content></content>
+      </div>
+    </div>
+  </template>
+
+  
+</polymer-element>
+
+
+
+
+
+
+
+<polymer-element name="spark-overlay" extends="spark-widget" attributes="arrow
+                 modal
+                 autoClose
+                 animation
+                 opened">
+
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+/*
+  TODO(sorvell): include a reasonable set of default overlay opening
+  animations. What's here right now is ad hoc.
+*/
+
+/*
+  Styling a spark-overlay:
+
+  1. use the 'opened' class to style the overlay when it is open.
+  A transition or animation can be applied to animate the overlay into place.
+  Note: there's no need to set the display property of an overlay. That's
+  managed automatically.
+
+  2. To apply a different animation when the overlay closes, use the
+  'closing' class.
+*/
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  position: fixed;
+  outline: none;
+  display: none;
+  opacity: 0;
+  /* The no-op transform creates an independent stacking context for :host.
+     See: https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Understanding_z_index/The_stacking_context
+  */
+  -webkit-transform: translateX(0);
+}
+
+/*
+  The revealed class exists because it's necessary to 'show' a node
+  before applying a transition. When an overlay is opened, it is
+  immediately revealed (display: block) and then asynchronously the
+  opened or closing classes are added.
+
+  Because we don't want to actually show the node before a transition
+  or animation is applied, when the node is
+  revealed, it is made display: block but visibility: hidden.
+  It is then made visibility: visible when it is opened.
+*/
+
+:host(.revealed) {
+  display: block;
+  visibility: hidden;
+}
+
+:host(.revealed.opened) {
+  opacity: 1;
+  display: block;
+  visibility: visible;
+}
+
+:host(.revealed.closing) {
+  display: block;
+  visibility: visible;
+}
+
+/*
+  When an animation is detected (via an animationstart event) this class
+  is applied to remove any transition. This ensures only 1 animation end event
+  will be processed.
+
+  NOTE: if a rule such as a media query changes an overlay from using a css
+  animation to a transition, the animation class must be altered or removed.
+*/
+:host(.animation-in-progress) {
+  -webkit-transition: none;
+  transition: none;
+}
+
+:host([animation=none]) {
+  opacity: 0;
+  /* This is essentially a no-op transition. We need it for the opening/closing
+     sequences in .dart to function as designed.
+  */
+  -webkit-transition: all 0.001s;
+  transition: all 0.001s;
+}
+
+:host([animation=none].opened) {
+  opacity: 1;
+}
+
+:host([animation=fade]) {
+  opacity: 0;
+  -webkit-transition: all 0.218s;
+  transition: all 0.218s;
+}
+
+:host([animation=fade].opened) {
+  opacity: 1;
+}
+
+:host([animation=scale-slideup]) {
+  opacity: 0.0;
+  -webkit-transform: scale(1.05);
+}
+
+:host([animation=scale-slideup].opened) {
+  opacity: 1.0;
+  -webkit-transform: scale(1.0);
+  -webkit-transition: all 0.218s;
+  transition: all 0.218s;
+}
+
+:host([animation=scale-slideup].closing) {
+  opacity: 0;
+  -webkit-transform: translateY(-100%);
+  -webkit-transition: all 0.4s;
+  transition: all 0.4s;
+}
+
+:host([animation=shake].opened) {
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-fill-mode: both;
+  -webkit-animation-name: shake-fade-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-name: shake-fade-in;
+}
+
+:host([animation=shake].closing) {
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-fill-mode: both;
+  -webkit-animation-name: shake-fade-out;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-name: shake-fade-out;
+}
+
+@-webkit-keyframes shake-fade-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateX(0);
+  }
+  10% {
+    -webkit-transform: translateX(-50px);
+  }
+  30% {
+    -webkit-transform: translateX(50px);
+  }
+  50% {
+    -webkit-transform: translateX(-25px);
+  }
+  70% {
+    -webkit-transform: translateX(25px);
+  }
+  90% {
+    -webkit-transform: translateX(-13px);
+  }
+  100% {
+    -webkit-transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes shake-fade-out {
+  0% {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+  }
+  10% {
+    -webkit-transform: translateX(-50px);
+  }
+  30% {
+    -webkit-transform: translateX(50px);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* TODO(ussuri): Inconsistency here: overlay's bg & border colors are specified
+   by the client, yet arrow's are hardcoded here. Could specify in the clien
+   (e.g. spark-menu-button) using ::shadow -- easy for `fill`, but trickier for
+   border-bottom-color. 
+*/
+.arrow {
+  position: relative;
+  height: 1px;
+  width: 0;
+  margin-top: -17px;
+  margin-bottom: 0;
+  fill: #fafafa;
+  border-color: transparent transparent #cfcfcf transparent;
+  border-style: solid;
+  border-width: 8px;
+  cursor: pointer;
+}
+
+#arrowInner {
+  fill: #fafafa;
+  border-bottom-color: #fafafa;
+  margin-top: -15px;
+  top: 1px;
+}
+
+:host([arrow="top-center"]) .arrow {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+:host([arrow="top-left"]) .arrow {
+  left: 15px;
+}
+
+:host([arrow="top-right"]) .arrow {
+  right: calc(-100% + 30px);
+}
+</style>
+    
+    <template if="{{arrow != 'none'}}">
+      <div class="arrow"></div>
+      <div id="arrowInner" class="arrow"></div>
+    </template>
+    
+    <content></content>
+  </template>
+
+  
+</polymer-element>
+
+
+
+
+
+
+
+<polymer-element name="spark-selection" extends="spark-widget" attributes="multi">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: none !important;
+}
+</style>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-selector" extends="spark-widget" attributes="multi
+                inSelection
+                valueAttr
+                itemFilter
+                activeClass
+                activeAttr
+                selectedClass
+                selectedAttr">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: block;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  -webkit-user-select: none;
+}
+</style>
+
+    <spark-selection id="selection" multi="{{multi}}" on-select="{{selectionSelectHandler}}">
+    </spark-selection>
+
+    <content id="items" select="*"></content>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-menu" extends="spark-selector" multi="false" itemfilter="spark-menu-item" activeclass="active" selectedclass="selected">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: block;
+  border: none;
+}
+
+::content spark-menu-item,
+::content spark-menu-separator {
+  min-width: 160px;
+}
+
+::content spark-menu-item {
+  min-height: 35px;
+}
+
+::content spark-menu-separator {
+  margin: 2px 0px;
+}
+</style>
+    <shadow></shadow>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-menu-button" extends="spark-widget" attributes="selected
+                valueAttr
+                opened
+                arrow" on-keydown="{{keyDownHandler}}">
+
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+@import url(packages/bootjack/css/bootstrap.min.css);
+@import url(packages/bootjack/css/bootstrap-theme.css);
+
+:host {
+  display: inline-block;
+}
+
+#button::content > * {
+  height: 100%;
+  width: 100%;
+}
+
+#overlay {
+  background-color: #fafafa;
+  border: 1px solid #cfcfcf;
+  border-radius: 3px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  margin-top: 7px;
+}
+
+/* TODO(ussuri): The values in the 2 translateX()'s below are very ad-hoc.
+   They currently align well with the menu button icon in Spark, but
+   don't work well e.g. for the one in examples/spark_menu_button. Fix.
+ */
+:host([arrow=top-right]:host) #overlay {
+  /* NOTE: calc() and 100% are important -- if just a percentage is used,
+     e.g. translateX(-91%), the fonts may get blurry. */
+  -webkit-transform: translateX(calc(-100% + 40px));
+}
+
+:host([arrow=top-left]:host) #overlay {
+  /* NOTE: Don't use an odd percentage here; see above why. */
+  -webkit-transform: translateX(-5px);
+}
+
+:host([arrow=top-center]:host) #overlay {
+}
+
+#menu{
+  margin: 5px 0;
+}
+</style>
+
+    <content id="button" select="spark-button"></content>
+
+    <spark-overlay id="overlay" arrow="{{arrow}}" autoclose="" animation="fade" on-opened="{{overlayOpenedHandler}}">
+      <spark-menu id="menu" selected="{{selected}}" valueattr="{{valueAttr}}" on-activate="{{menuActivateHandler}}">
+        <content></content>
+      </spark-menu>
+    </spark-overlay>
+  </template>
+
+  
+</polymer-element>
+
+
+
+
+
+<polymer-element name="spark-icon" extends="spark-widget" attributes="src
+                tooltip
+                size">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#icon {
+  cursor: pointer;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+</style>
+
+    <style>
+      #icon {
+        background-image: url(packages/spark_widgets/spark_icon/{{src}});
+        width: {{size}};
+        height: {{size}};
+      }
+    </style>
+
+    <div id="icon" title?="{{tooltip}}"></div>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-menu-item" extends="spark-widget" attributes="icon
+                iconSize
+                label
+                description">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 20px;
+  border: none;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+::content * {
+  overflow: hidden;
+}
+
+#label,
+::content * {
+  color: #000;
+}
+
+#label,
+#description {
+  text-transform: capitalize;
+}
+
+#description {
+  color: #bdbdbd;
+  justify-content: flex-end;
+}
+
+:host(.active, .selected) #label,
+:host(.active, .selected) #description,
+:host(.active, .selected) ::content * {
+  color: white;
+}
+
+:host(.selected) {
+  background-color: rgba(66, 129, 244, 0.5);
+}
+
+:host(.active) {
+  background-color: rgba(66, 129, 244, 1.0);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+</style>
+
+    <span id="main">
+      <template if="{{icon.isNotEmpty}}">
+        <spark-icon id="icon" src="{{icon}}" size="{{iconSize}}"></spark-icon>
+      </template>
+      <span id="label">{{label}}</span>
+      <content></content>
+    </span>
+    <span id="description">{{description}}</span>
+  </template>
+
+  
+</polymer-element>
+
+
+<polymer-element name="spark-menu-separator" extends="spark-widget">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: block;
+  height: 1px;
+  margin: 0 10px;
+  background-color: #ddd;
+  cursor: default;
+}
+</style>
+  </template>
+
+  
+</polymer-element>
+
+
+<polymer-element name="spark-modal" extends="spark-overlay" modal="">
+  <template>
+    <shadow></shadow>
+  </template>
+
+  
+</polymer-element>
+
+
+
+<polymer-element name="spark-progress" extends="spark-widget" attributes="indeterminate
+                progressMessage
+                showProgressMessage
+                showCancel
+                value
+                visible">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+@import url(packages/bootjack/css/bootstrap.min.css);
+@import url(packages/bootjack/css/bootstrap-theme.css);
+
+#progressLayout {
+  display: flex;
+}
+
+#progressMessage {
+  text-overflow: ellipsis;
+  min-height: 1.4em;
+  min-width: 1em;
+  margin-bottom: 3px;
+}
+
+#progressDiv {
+  flex: 20;
+}
+
+spark-button {
+  margin-left: 4px;
+}
+
+.progress, .progress-bar {
+  margin-bottom: 5px;
+}
+</style>
+
+    <template if="{{showProgressMessage}}">
+      <div id="progressMessage">{{progressMessage}}</div>
+    </template>
+
+    <div id="progressLayout">
+      <div id="progressDiv" class="progress">
+        <div id="progressBar" class="progress-bar" role="progressbar" style="width: {{value}}%;">
+        </div>
+      </div>
+
+      <template if="{{showCancel}}">
+        <spark-button flat="" minpadding="" on-click="{{cancelClickHandler}}">
+          <span class="glyphicon glyphicon-stop"></span>
+        </spark-button>
+      </template>
+    </div>
+  </template>
+
+  
+</polymer-element>
+
+
+
+
+
+<polymer-element name="spark-splitter" extends="spark-widget" attributes="direction
+                size
+                handle
+                targetSize
+                minTargetSize
+                maxTargetSize
+                locked">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  background-color: #dadada;
+  display: block;
+  /* Form an independent stacking context. */
+  position: relative;
+  /* The no-op transform forms an independent stacking context. */
+  -webkit-transform: translateX(0);
+}
+
+:host([handle]:host) {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  background-color: #f7f7f7;
+}
+
+:host([handle].vertical:host) {
+  background: url(packages/spark_widgets/spark_splitter/handle_vert.png) no-repeat center;
+}
+
+:host([handle].horizontal:host) {
+  background: url(packages/spark_widgets/spark_splitter/handle_horiz.png) no-repeat center;
+}
+
+#draggable {
+  position: absolute;
+  z-index: 1;
+}
+
+:host(.vertical:host) #draggable {
+  cursor: col-resize;
+}
+
+:host(.horizontal:host) #draggable {
+  cursor: row-resize;
+}
+</style>
+    <div id="draggable"></div>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-split-view" extends="spark-widget" attributes="direction
+                splitterSize
+                splitterHandle
+                targetSize
+                minTargetSize
+                maxTargetSize
+                locked">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: flex;
+  /* The no-op transform forms an independent stacking context */
+  -webkit-transform: translateX(0);
+}
+
+:host([direction="left"]:host, [direction="right"]:host) {
+  flex-flow: row;
+}
+
+:host([direction="up"]:host, [direction="down"]:host) {
+  flex-flow: column;
+}
+
+/* Z-order the splitter higher than the two split halves */
+::content > * {
+  position: relative;
+}
+
+#splitter {
+  position: relative;
+  /* This z-index is local to :host. */
+  z-index: 1;
+}
+
+/* Make the passive target of resizing 'flex', so it auto-adjusts when the
+   active target is resized.
+*/
+:host([direction="left"], [direction="up"]) > content[select="[afterSplit]"]::content > *,
+:host([direction="right"], [direction="down"]) > content[select="[beforeSplit]"]::content > * {
+  flex: 1;
+}
+</style>
+
+    <!-- NOTE: The Dart side verifies that there is exactly 2 children -->
+    <content select="[beforeSplit]"></content>
+
+    <spark-splitter id="splitter" direction="{{direction}}" size="{{splitterSize}}" handle="{{splitterHandle}}" targetsize="{{targetSize}}" mintargetsize="{{minTargetSize}}" maxtargetsize="{{maxTargetSize}}" locked="{{locked}}" on-update="{{splitterUpdateHandler}}">
+    </spark-splitter>
+
+    <content select="[afterSplit]"></content>
+
+  </template>
+
+  
+</polymer-element>
+
+
+<polymer-element name="spark-status" extends="spark-widget" attributes="spinning defaultMessage temporaryMessage progressMessage">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: inline-block;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#status-container {
+  background-color: rgba(66, 129, 244, 0.9);
+  border-radius: 22px;
+  padding: 10px 20px;
+  pointer-events: none;
+}
+
+#throbber {
+  display: none;
+  width: 16px;
+  height: 16px;
+  margin-left: 10px;
+  position: relative;
+  top: -3px;
+  vertical-align: middle;
+}
+
+#throbber.spinning {
+  display: inline-block;
+}
+
+#label {
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: white;
+  display: inline;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+#status-container.hidden {
+  opacity: 0;
+}
+
+#spinner {
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+#container1 > div,
+#container2 > div,
+#container3 > div {
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+
+  border-radius: 100%;
+  position: absolute;
+  -webkit-animation: bouncedelay 1.2s infinite ease-in-out;
+  animation: bouncedelay 1.2s infinite ease-in-out;
+  /* Prevent first frame from flickering when animation starts */
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+#spinner .spinner-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#container2 {
+  -webkit-transform: rotateZ(45deg);
+}
+
+#container3 {
+  -webkit-transform: rotateZ(90deg);
+}
+
+.circle1 {
+  top: 0;
+  left: 0;
+}
+
+.circle2 {
+  top: 0;
+  right: 0;
+}
+
+.circle3 {
+  right: 0;
+  bottom: 0;
+}
+
+.circle4 {
+  left: 0;
+  bottom: 0;
+}
+
+#container2 .circle1 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+#container3 .circle1 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+#container1 .circle2 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+#container2 .circle2 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+#container3 .circle2 {
+  -webkit-animation-delay: -0.7s;
+  animation-delay: -0.7s;
+}
+
+#container1 .circle3 {
+  -webkit-animation-delay: -0.6s;
+  animation-delay: -0.6s;
+}
+
+#container2 .circle3 {
+  -webkit-animation-delay: -0.5s;
+  animation-delay: -0.5s;
+}
+
+#container3 .circle3 {
+  -webkit-animation-delay: -0.4s;
+  animation-delay: -0.4s;
+}
+
+#container1 .circle4 {
+  -webkit-animation-delay: -0.3s;
+  animation-delay: -0.3s;
+}
+
+#container2 .circle4 {
+  -webkit-animation-delay: -0.2s;
+  animation-delay: -0.2s;
+}
+
+#container3 .circle4 {
+  -webkit-animation-delay: -0.1s;
+  animation-delay: -0.1s;
+}
+
+@-webkit-keyframes bouncedelay {
+  0%, 80%, 100% {
+    -webkit-transform: scale(0.0);
+  }
+  40% {
+    -webkit-transform: scale(1.0);
+  }
+}
+
+@keyframes bouncedelay {
+  0%, 80%, 100% {
+    -webkit-transform: scale(0.0);
+  } 40% {
+    -webkit-transform: scale(1.0);
+  }
+}
+</style>
+
+    <div id="status-container">
+      <div id="label"></div>
+      <div id="throbber">
+        <div id="spinner">
+          <div id="container1" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+          <div id="container2" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+          <div id="container3" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-toolbar" extends="spark-widget" attributes="horizontal
+                vertical
+                justify">
+  <template class="debug">
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #fafafa;
+}
+
+:host([horizontal]) {
+  padding: 0 5px;
+  flex-flow: row;
+}
+
+:host([vertical]) {
+  padding: 5px 0;
+  flex-flow: column;
+}
+
+:host([justify=left]:host) {
+  justify-content: flex-start;
+}
+
+:host([justify=right]:host) {
+  justify-content: flex-end;
+}
+
+:host([justify=center]:host) {
+  justify-content: center;
+}
+
+:host([justify=spaced]:host) {
+  justify-content: space-around;
+}
+
+:host([horizontal]) ::content > * {
+  margin: 0 2px;
+}
+
+:host([vertical]) ::content > * {
+  margin: 2px 0;
+}
+
+::content > [flex] {
+  flex: 1;
+}
+</style>
+
+    <content></content>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="commit-message-view">
+  <template>
+    <!-- BUG: https://code.google.com/p/dart/issues/detail?id=14382 -->
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+:host {
+  margin: 15px;
+}
+
+#author-info {
+  display: flex;
+}
+
+#author {
+  flex: 0 1 auto;
+}
+
+#author-name {
+  display: inline;
+}
+
+#author-email {
+  display: inline;
+}
+
+#date {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+#identifier {
+  color: #ccc;
+}
+</style>
+    <div id="message">{{commitInfo.message}}</div>
+    <div id="author-info">
+      <div id="author">
+        <div id="author-name">{{commitInfo.authorName}}</div>
+        <div id="author-email">&lt;{{commitInfo.authorEmail}}&gt;</div>
+      </div>
+      <div id="author-date">{{commitInfo.dateString}}</div>
+    </div>
+    <div id="identifier">{{commitInfo.identifier}}</div>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="goto-line-view">
+  <template>
+    <style>/* Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+:host {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+#container {
+  display: none;
+  background: #eee;
+  padding: 4px;
+  border: 1px solid #dadada;
+  border-radius: 0;
+  border-top: 0;
+  border-right: none;
+}
+
+#container.showing {
+  display: block;
+}
+
+#queryText {
+  display: inline;
+  border: 1px solid #cbcbcb;
+  border-radius: 3px;
+  padding: 0 7px;
+  margin: 0;
+  height: 22px;
+}
+
+#queryText:focus {
+  outline: 0;
+}
+
+#closeButton {
+  position: relative;
+  top: 4px;
+  right: 3px;
+  margin: 0;
+  padding: 0;
+  cursor: default;
+  display: inline;
+  font-size: 12px;
+  height: 15px;
+  width: 13px;
+  opacity: 0.5;
+  background: url(lib/ui/polymer/goto_line_view/search_close.png);
+  border: 0 none;
+}
+
+#closeButton:hover {
+  opacity: 1.0;
+}
+
+#closeButton:active {
+  outline: none;
+}
+</style>
+
+    <div id="container">
+      <input id="queryText" type="text" size="40" placeholder="Goto line">
+      <button type="button" id="closeButton"></button>
+    </div>
+  </template>
+
+  
+</polymer-element>
+<polymer-element name="spark-polymer-ui" attributes="splitViewPosition">
+  <template>
+    <style>/* Copyright (c) 2013, Google Inc. Please see the AUTHORS file for details. */
+/* All rights reserved.  Use of this source code is governed by a BSD-style */
+/* license that can be found in the LICENSE file. */
+
+@import url(packages/spark_widgets/common/spark_widget.css);
+@import url(packages/bootjack/css/bootstrap.min.css);
+@import url(packages/bootjack/css/bootstrap-theme.css);
+@import url(third_party/font_awesome/css/font-awesome.min.css);
+
+/* Order is important */
+@import url(spark_common.css);
+
+#splitView {
+  border-top: 1px solid #ddd;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.dialog {
+  top: 72px;
+  left: 50%;
+  width: 512px;
+  margin-left: -256px;
+  border-radius: 5px;
+}
+
+.dialog input[type="text"] {
+  width: 100%;
+}
+
+.dialog input:invalid {
+  color: red;
+}
+
+.dialog {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  overflow: hidden;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dialog a.close {
+  width: 21px;
+  height: 21px;
+  text-align: center;
+}
+
+.toolbar {
+  height: 48px;
+  border-bottom: 1px solid #ddd;
+}
+
+.toolbar > * {
+  height: 36px;
+}
+
+.toolbar > spark-button,
+.toolbar > spark-menu-button {
+  width: 36px;
+  margin: 0;
+}
+
+#fileFilter {
+  background: #fff url(images/search.png) 10px center no-repeat;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  height: 36px;
+  flex: 1;
+  font: inherit;
+  margin: 2px;
+  padding: 10px 10px 10px 44px;
+}
+
+#fileFilter:focus {
+  border: 1px solid #9DBEFF;
+  outline: none;
+}
+
+#fileFilter:focus.active ~ #runButton,
+#fileFilter:focus.active ~ #mainMenu {
+  display: none;
+}
+
+#fileNotFoundPlaceholder {
+  color: #ccc;
+  display: block;
+  font-size: 18px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+#navigationButtons {
+  position: absolute;
+  right: 0;
+  width: 95px;
+  z-index: 150;
+}
+
+#runButton > i,
+#leftNav > i,
+#rightNav > i {
+  font-size: 16px;
+}
+
+#sparkStatusContainer {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  pointer-events: none;
+  right: 0;
+  text-align: center;
+  z-index: 101;
+}
+
+#settingsDialog .settings-label {
+  display: inline-block;
+  width: 130px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #EEE;
+  border: 1px solid #DDD;
+  padding: 2px 5px;
+}
+
+#settingsDialog #directory-label {
+  height: 24px;
+  width: 250px;
+}
+
+#settingsDialog .plus-minus-container {
+  margin-left: 15px;
+}
+
+#settingsDialog .plus-minus-button {
+  background-color: #3a84c3;
+  border-radius: 5px;
+  color: #fff;
+  display: inline;
+  overflow: hidden;
+  padding: 5px 8px;
+  margin-right: 6px;
+}
+
+#settingsDialog .plus-minus-button:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+#settingsDialog .plus-minus-button:active {
+  background-color: #19197A;
+  color: #fff;
+  text-decoration: none;
+}
+
+#gitResetSettingsDone {
+  margin-left: 15px;
+}
+
+#preferenceResetResult {
+  color: #F00;
+  font-weight: bold;
+}
+
+#gitPushDialog .modal-body {
+  margin: 0;
+  padding: 0;
+}
+
+#gitPushDialog .form-group {
+  margin: 0;
+}
+
+#gitPushDialog .modal-footer {
+  margin: 0;
+}
+
+#gitCommitList {
+  max-height: 250px;
+  overflow: scroll;
+  padding: 0 20px;
+}
+
+#gitCommitList h1 {
+  font-size: 15px;
+  margin-top: 20px;
+  margin-bottom: 0px;
+}
+
+#gitChangeList {
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+  display: none;
+  margin-bottom: 15px;
+  max-height: 105px;
+  overflow: auto;
+  padding: 5px 14px;
+}
+
+#changeLabel {
+  top: 0px;
+}
+
+#gitStatusDiv {
+  width: 100%;
+}
+
+#gitUserInfo.hidden {
+  display: none;
+}
+
+/* Deploy to mobile dialog */
+#mobileDeployDialog .modal-body {
+  padding-top: 10px;
+  padding-bottom: 0;
+}
+
+#pushUrl {
+  margin-left: 17px;
+  width: 20em;
+}
+
+.input-label {
+  display: flex;
+  margin: 10px 0;
+}
+
+.input-label label {
+  flex: 0 1 auto;
+  width: 150px;
+  position: relative;
+  top: 9px;
+}
+
+.input-label input {
+  flex: 1 1 auto;
+}
+
+#webStorePublishDialog label {
+  margin-left: 5px;
+}
+
+[selectableTxt] {
+  -webkit-user-select: text;
+}
+</style>
+
+    <spark-split-view id="splitView" direction="left" splittersize="1" splitterhandle="false" targetsize="{{splitViewPosition}}" mintargetsize="200" on-update="{{onSplitterUpdate}}">
+      <div beforesplit="">
+        <spark-toolbar class="toolbar" horizontal="" justify="spaced">
+          <input type="fileFilter" id="fileFilter" placeholder="Filter" on-keydown="{{fileFilterKeydownHandler}}" on-input="{{fileFilterInputHandler}}" tabindex="0">
+
+          <spark-button id="runButton" flat="" round="" nopadding="">
+            <i class="glyphicon glyphicon-play"></i>
+          </spark-button>
+
+          <spark-menu-button id="mainMenu" valueattr="action-id" arrow="none" on-activate="{{onMenuSelected}}">
+
+            <spark-button flat="" round="" nopadding="" menubutton="">
+              <img src="images/overflow.png">
+            </spark-button>
+
+            <spark-menu-item action-id="project-new" label="New Project...">
+            </spark-menu-item>
+
+            <spark-menu-separator></spark-menu-separator>
+
+            <spark-menu-item action-id="file-open" label="Open File...">
+            </spark-menu-item>
+            <spark-menu-item action-id="folder-open" label="Open Folder...">
+            </spark-menu-item>
+            <spark-menu-item action-id="git-clone" label="Git Clone...">
+            </spark-menu-item>
+
+            <spark-menu-separator></spark-menu-separator>
+
+            <spark-menu-item action-id="application-run" label="Run Application">
+            </spark-menu-item>
+            <spark-menu-item action-id="application-push" label="Deploy to Mobile...">
+            </spark-menu-item>
+            <spark-menu-item action-id="webstore-publish" label="Publish to Chrome Web Store...">
+            </spark-menu-item>
+
+            <template if="{{developerMode}}">
+              <spark-menu-separator></spark-menu-separator>
+              <spark-menu-item action-id="run-tests" label="Run Tests">
+              </spark-menu-item>
+            </template>
+
+            <spark-menu-separator></spark-menu-separator>
+
+            <spark-menu-item action-id="settings" label="Settings...">
+            </spark-menu-item>
+            <spark-menu-item action-id="send-feedback" label="Send Feedback...">
+            </spark-menu-item>
+            <spark-menu-item action-id="help-about" label="About Spark">
+            </spark-menu-item>
+
+          </spark-menu-button>
+        </spark-toolbar>
+
+        <content select="#fileViewArea"></content>
+
+        <template if="{{showNoFileFilterMatches}}">
+          <div id="fileNotFoundPlaceholder">
+            No matching files
+          </div>
+        </template>
+      </div>
+
+      <div aftersplit="">
+        <content select="#editorArea"></content>
+
+        <spark-toolbar id="navigationButtons" class="toolbar" horizontal="" justify="right">
+          <spark-button id="leftNav" flat="" round="" nopadding="">
+            <i class="fa fa-arrow-left"></i>
+          </spark-button>
+          <spark-button id="rightNav" flat="" round="" nopadding="">
+            <i class="fa fa-arrow-right"></i>
+          </spark-button>
+        </spark-toolbar>
+
+        <div id="sparkStatusContainer">
+         <spark-status id="sparkStatus"></spark-status>
+        </div>
+      </div>
+    </spark-split-view>
+
+    <!-- Error dialog -->
+    <spark-modal id="errorDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 id="errorTitle"></h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div id="errorMessage" class="help-block"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button id="errorClose" overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- OK / Cancel dialog -->
+    <spark-modal id="okCancelDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <p id="okCancelMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button id="okText" overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          OK
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Rename File dialog -->
+    <spark-modal id="renameDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Rename</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="renameFileName">New name</label>
+          <input id="renameFileName" type="text" class="form-control" spellcheck="false" focused="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Rename
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- New File dialog -->
+    <spark-modal id="fileNewDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">New File</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="fileName">New file name</label>
+          <input id="fileName" type="text" class="form-control" spellcheck="false" focused="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Create
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- New Folder dialog -->
+    <spark-modal id="folderNewDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">New Folder</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="folderName">New folder name</label>
+          <input id="folderName" type="text" class="form-control" spellcheck="false" focused="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Create
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- New Project dialog -->
+    <spark-modal id="newProjectDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">New Project</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="name">Project name</label>
+          <input id="name" type="text" class="form-control" pattern="[^\/ ]+" placeholder="HelloWorld" spellcheck="false" autosave="" focused="">
+        </div>
+        <div class="form-group">
+          <label for="type">Project type</label>
+          <select name="type" class="form-control" autosave="">
+            <option value="empty">
+              Blank project
+            </option>
+            <optgroup label="Web apps">
+              <option value="web/web_app_dart">
+                Dart Web app
+              </option>
+              <option value="web/web_app_js">
+                JavaScript Web app
+              </option>
+              <option value="web/web_app_polymer_js;polymer,polymer-elements,polymer-ui-elements">
+                JavaScript Web app using Polymer
+              </option>
+            </optgroup>
+            <optgroup label="Chrome apps">
+              <option value="chrome/chrome_app_js">
+                JavaScript Chrome app
+              </option>
+              
+                <!-- This one currently can't possibly work due to Polymer
+                     JS breaking the CSP. BUG #1933. -->
+                <option value="chrome/chrome_app_polymer_js;polymer,polymer-elements,polymer-ui-elements">
+                  JavaScript Chrome app using Polymer
+                </option>
+                <!-- This one works when installed in Chrome manually, but
+                     launching via the 'Run' button is broken. BUG #1935. -->
+                <option value="chrome/chrome_extension_js">
+                  JavaScript Chrome extension
+                </option>
+              
+            </optgroup>
+            <optgroup label="Other">
+              <option value="polymer/polymer_element_js">
+                JavaScript Polymer custom element
+              </option>
+              
+                <!-- This one just needs some additional work. -->
+                <option value="polymer/polymer_element_dart">
+                  Dart Polymer custom element
+                </option>
+                <!-- This one is internal for now. -->
+                <option value="polymer/spark_widget">
+                  Spark widget
+                </option>
+              
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Create
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Harness Push dialog -->
+    <spark-modal id="mobileDeployDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Deploy to Mobile</h4>
+      </div>
+      <div class="modal-body">
+        <h4>Deploy a Chrome App to an Android Device</h4>
+        <p>
+          Please start the
+          <a href="https://github.com/MobileChromeApps/harness/releases/" on-click="{{handleAnchorClick}}">Chrome ADT</a>
+          application on your Android device.
+        </p>
+        <div class="form-group">
+          <form>
+            <div>
+              <input id="adb" type="radio" name="type" value="push-adb" checked="">
+              <label for="adb">Deploy via USB</label>
+            </div>
+            <div>
+              <input id="ip" type="radio" name="type" value="push-ip" autosave="">
+              <label for="ip">Deploy to a network host</label>
+              <input id="pushUrl" type="text" class="form-control" placeholder="e.g. 192.168.1.101" pattern="(\d{1,3}\.){3}\d{1,3}" spellcheck="false" autosave="">
+            </div>
+          </form>
+        </div>
+        <spark-progress id="deployProgress" indeterminate="" showprogressmessage="" showcancel="" visible="false">
+        </spark-progress>
+        <div id="deployCheckDeviceMessage">
+          Please check for a connection authorization dialog on your device.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button primary="" focused="">
+          Deploy
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git Clone dialog -->
+    <spark-modal id="gitCloneDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Clone Git Project</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="gitRepoUrl">Repository URL</label>
+          <input id="gitRepoUrl" type="url" class="form-control" placeholder="https://github.com/dart-lang/spark.git" spellcheck="false" autosave="" focused="">
+        </div>
+        <spark-progress id="cloneProgress" indeterminate="" showprogressmessage="" showcancel="" visible="false">
+        </spark-progress>
+      </div>
+      <div class="modal-footer">
+        <spark-button id="cloneClose" overlay-toggle="" data-dismiss="modal">
+          Close
+        </spark-button>
+        <spark-button id="clone" primary="" data-dismiss="modal">
+          Clone
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git Commit dialog -->
+    <spark-modal id="gitCommitDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Git Commit</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div id="gitUserInfo">
+            <div class="input-label">
+              <label for="gitName">Your Name</label>
+              <input id="gitName" type="text" class="form-control" placeholder="John Doe" spellcheck="false" autosave="" focused="">
+            </div>
+            <div class="input-label">
+              <label for="gitEmail">Email</label>
+              <input id="gitEmail" type="email" class="form-control" placeholder="johndoe@gmail.com" spellcheck="false" autosave="">
+            </div>
+          </div>
+        </div>
+          <div class="input-label">
+            <label id="changeLabel">Changes</label>
+            <div id="gitStatusDiv">
+               <span id="gitStatus"></span>
+               <a href="#" id="gitStatusDetail">Details...</a>
+            </div>
+          </div>
+          <div id="gitChangeList"></div>
+        <div class="form-group">
+          <label for="commitMessage">Commit Message</label>
+          <textarea id="commitMessage" type="text" class="form-control" rows="3" wrap="soft" spellcheck="" autosave=""></textarea>
+          <span class="help-block">Enter a brief description of the changes.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Commit
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git Branch dialog -->
+    <spark-modal id="gitBranchDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Create Branch</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="gitBranchName">New branch name</label>
+          <input id="gitBranchName" type="text" class="form-control" pattern="[^~:?*\^\[\s]+" spellcheck="false" autosave="" focused="">
+          <span class="help-block">Create a new git branch.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Create Branch
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git Checkout dialog -->
+    <spark-modal id="gitCheckoutDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Git Checkout</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="currentBranchName">Current branch</label>
+          <input id="currentBranchName" type="text" class="form-control" spellcheck="false" disabled="">
+        </div>
+        <div class="form-group">
+          <label for="gitCheckout">Switch to branch</label>
+          <select id="gitCheckout" class="form-control"></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Checkout
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git Push dialog -->
+    <spark-modal id="gitPushDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Git Push</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+           <div id="gitCommitList"></div>
+        </div>
+        <spark-progress id="gitPushProgress" indeterminate="" showprogressmessage="" showcancel="" visible="false">
+        </spark-progress>
+      </div>
+      <div class="modal-footer">
+        <spark-button id="gitPushClose" overlay-toggle="" data-dismiss="modal">
+          Close
+        </spark-button>
+        <spark-button id="gitPush" overlay-toggle="" primary="" data-dismiss="modal">
+          Push
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- About dialog -->
+    <spark-modal id="aboutDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Spark</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <span class="help-block">
+            A Chrome Apps based development environment (v<span id="aboutVersion"></span>)
+          </span>
+        </div>
+        <div class="form-group">
+          <div class="checkbox">
+            <input id="analyticsCheck" type="checkbox">
+            <label for="analyticsCheck">
+              Allow Spark to collect anonymous usage statistics
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Settings dialog -->
+    <spark-modal id="settingsDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Settings</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label class="control-label">Whitespace</label>
+          <div class="checkbox">
+            <input id="stripWhitespace" type="checkbox">
+            <label for="stripWhitespace">
+              Strip trailing whitespace on save
+            </label>
+          </div>
+        </div>
+
+        <template if="{{useAceThemes}}">
+          <div class="form-group" id="changeTheme">
+            <label class="control-label">Editor theme</label>
+            <div>
+              <span class="settings-label"></span>
+              <span class="plus-minus-container">
+                <a href="#" id="themeMinus" class="plus-minus-button" on-click="{{onThemeMinus}}">
+                  <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <a href="#" id="themePlus" class="plus-minus-button" on-click="{{onThemePlus}}">
+                  <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </template>
+
+        <div class="form-group" id="changeFont">
+          <label class="control-label">Editor font</label>
+          <div>
+            <span class="settings-label"></span>
+            <span class="plus-minus-container">
+              <a href="#" id="fontMinus" class="plus-minus-button" on-click="{{onFontSmaller}}">
+                <span class="glyphicon glyphicon-minus"></span>
+              </a>
+              <a href="#" id="fontPlus" class="plus-minus-button" on-click="{{onFontLarger}}">
+                <span class="glyphicon glyphicon-plus"></span>
+              </a>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group" id="changeKeys">
+          <label class="control-label">Key bindings</label>
+          <div>
+            <span class="settings-label"></span>
+            <span class="plus-minus-container">
+              <a href="#" id="keysMinus" class="plus-minus-button" on-click="{{onKeysMinus}}">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+              </a>
+              <a href="#" id="keysPlus" class="plus-minus-button" on-click="{{onKeysPlus}}">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+              </a>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="control-label">Git</label>
+          <div>
+            <spark-button on-click="{{onResetGit}}">
+              Clear Git Credentials
+            </spark-button>
+            <span id="gitResetSettingsDone">Done</span>
+          </div>
+        </div>
+
+        <template if="{{!chromeOS}}">
+          <div class="form-group">
+            <label class="control-label">Root directory</label>
+            <div>
+              <span id="directory-label" class="settings-label"></span>
+            </div>
+          </div>
+        </template>
+
+        <template if="{{developerMode}}">
+          <div class="form-group">
+            <label class="control-label">Preferences</label>
+            <div>
+              <spark-button on-click="{{onResetPreference}}">
+                Reset Preferences
+              </spark-button>
+              <span id="preferenceResetResult"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Git authentication dialog -->
+    <spark-modal id="gitAuthenticationDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Git Authentication</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div id="gitUserInfo">
+            <div class="input-label">
+              <label for="gitUsername">User name</label>
+              <input id="gitUsername" type="text" class="form-control" placeholder="johndoe" pattern="\S+" spellcheck="false" autosave="" focused="">
+            </div>
+            <div class="input-label">
+              <label for="gitPassword">Password</label>
+              <input id="gitPassword" type="password" class="form-control" placeholder="Required">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal" class="cancel-button">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal">
+          Login
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Publish on webstore -->
+    <spark-modal id="webStorePublishDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Publish to Chrome Web Store</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <form>
+            <div>
+              <input type="radio" name="type" value="new" id="new-app-radio" checked="">
+              <label for="new-app-radio">Create a new application</label>
+            </div>
+            <div>
+              <input type="radio" name="type" value="existing" id="existing-app-radio">
+              <label for="existing-app-radio">Upload to an existing application</label>
+            </div>
+          </form>
+        </div>
+        <div class="form-group">
+          <label for="appID">Enter the ID of the existing application</label>
+          <input id="appID" type="text" class="form-control" placeholder="abcdefghijklmnopqrstuvwxyzabcdef" pattern="[a-z]{32}" spellcheck="false" autosave="">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Publish
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Properties dialog -->
+    <spark-modal id="propertiesDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Properties</h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Chrome WebStore published dialog -->
+    <spark-modal id="webStorePublishedDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Your application has been published</label>
+          <div class="help-block">
+            An updated version of your application has been uploaded and
+            published. You can now see it on the Chrome Web Store.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button id="webStorePublishedAction" overlay-toggle="" data-dismiss="modal">
+          Open in the WebStore
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- Chrome WebStore first upload dialog -->
+    <spark-modal id="webStoreUploadedDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Your application has been uploaded</label>
+          <div class="help-block">
+            Your application has been uploaded on the Chrome Web Store.
+            You still need to fill out some additional information in the
+            Developer Dashboard before publishing it.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button id="webStoreUploadedAction" overlay-toggle="" data-dismiss="modal">
+          Open in the Developer Dashboard
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" focused="" data-dismiss="modal">
+          Close
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- project remove dialog -->
+    <spark-modal id="projectRemoveDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Remove Project</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="help-block">
+            Choose "Delete" if you want to remove
+            "<span id="projectRemoveProjectName"></span>" permanently from
+            disk or choose "Remove Reference" if you'd like to remove it from
+            the list of projects in Spark but keep your files on disk.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" data-dismiss="modal" id="projectRemoveDeleteButton">
+          Delete
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal" id="projectRemoveRemoveReferenceButton">
+          Remove Reference
+        </spark-button>
+      </div>
+    </spark-modal>
+
+    <!-- file remove dialog -->
+    <spark-modal id="fileRemoveDialog" class="dialog" animation="scale-slideup">
+      <div class="modal-header">
+        <a href="#" class="close" overlay-toggle="">×</a>
+        <h4 class="modal-title">Remove File</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <div class="help-block">
+            Choose "Delete" if you want to remove
+            "<span id="fileRemoveFileName"></span>" permanently from
+            disk or choose "Remove Reference" if you'd like to remove it from
+            Spark but keep the file on disk.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <spark-button overlay-toggle="" data-dismiss="modal">
+          Cancel
+        </spark-button>
+        <spark-button overlay-toggle="" data-dismiss="modal" id="fileRemoveDeleteButton">
+          Delete
+        </spark-button>
+        <spark-button overlay-toggle="" primary="" data-dismiss="modal" id="fileRemoveRemoveReferenceButton">
+          Remove Reference
+        </spark-button>
+      </div>
+    </spark-modal>
+  </template>
+
+  
+</polymer-element>
+<script src="spark_polymer_ui.html_bootstrap.dart.js"></script></body></html>
