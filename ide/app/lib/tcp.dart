@@ -81,7 +81,13 @@ class TcpClient {
         throw new SocketException(
             'unable to connect to ${host} ${port}: ${e.toString()}');
       });
-    });
+    }).catchError((e) {
+      print('create socket9');
+      if (!throwOnError) return null;
+      print('create socket10');
+      throw new SocketException(
+          'unable to create socket');
+    });;
   }
 
   static void _initListeners() {
