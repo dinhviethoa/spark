@@ -1,3 +1,8 @@
+if [ "$DRONE" = "true" ]; then
+  sudo start xvfb
+  export HAS_DARTIUM=true
+fi
+
 pub get
 
 if [ "$DRONE" = "true" ]; then
