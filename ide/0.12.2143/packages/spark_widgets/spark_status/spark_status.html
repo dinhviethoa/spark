@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<!-- Copyright (c) 2014, Google Inc. Please see the AUTHORS file for details.
+     All rights reserved. Use of this source code is governed by a BSD-style
+     license that can be found in the LICENSE file. -->
+
+<link rel="import" href="../../../packages/spark_widgets/common/spark_widget.html"/>
+
+<polymer-element name="spark-status" extends="spark-widget"
+    attributes="spinning defaultMessage temporaryMessage progressMessage">
+  <template>
+    <link rel="stylesheet" href="spark_status.css">
+
+    <div id="status-container">
+      <div id="label"></div>
+      <div id="throbber">
+        <div id="spinner">
+          <div id="container1" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+          <div id="container2" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+          <div id="container3" class="spinner-container">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+            <div class="circle3"></div>
+            <div class="circle4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script type="application/dart;component=1" src="spark_status.dart"></script>
+</polymer-element>

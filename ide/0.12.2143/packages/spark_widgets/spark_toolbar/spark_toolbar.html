@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<!-- Copyright (c) 2013, Google Inc. Please see the AUTHORS file for details.
+     All rights reserved. Use of this source code is governed by a BSD-style
+     license that can be found in the LICENSE file. -->
+
+<!--
+/**
+ * spark-toolbar is a horizontal bar containing elements that can perform actions.
+ *
+ * Example:
+ *
+ *     <spark-toolbar>
+ *       <spark-button on-click="{{menuAction}}">Menu</spark-button>
+ *       <div style="flex: 1">Title</div>
+ *       <spark-button on-click="{{moreAction}}">More</spark-icon-button>
+ *     </spark-toolbar>
+ */
+-->
+
+<polymer-element name="spark-toolbar" extends="spark-widget"
+    attributes="horizontal
+                vertical
+                justify">
+  <template class="debug">
+    <link rel="stylesheet" href="spark_toolbar.css">
+
+    <content></content>
+  </template>
+
+  <script type="application/dart;component=1" src="spark_toolbar.dart"></script>
+</polymer-element>
