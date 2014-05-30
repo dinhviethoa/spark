@@ -1,4 +1,7 @@
 if [ "$DRONE" = "true" ]; then
+  curl -O https://dl.google.com/linux/direct/google-chrome-unstable_current_amd64.deb
+  dpkg -L google-chrome-unstable_current_amd64.deb
+  sudo dpkg -i google-chrome-unstable_current_amd64.deb
   sudo start xvfb
   export HAS_DARTIUM=true
 fi
