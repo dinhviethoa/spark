@@ -26,12 +26,12 @@ fi
 
 # Run tests the Dart version of the app.
 if [ "$HAS_DARTIUM" = "true" ]; then
-  dart tool/test_runner.dart --dartium
+  dart tool/test_runner.dart --dartium --verbose
 fi
 
 # Run tests on the dart2js version of the app.
 if [ "$DRONE" = "true" ]; then
-  dart tool/test_runner.dart --chrome-dev --appPath=build/deploy-out/web
+  dart tool/test_runner.dart --chrome-dev --appPath=build/deploy-out/web --verbose
 else
   dart tool/test_runner.dart --chrome
 fi
